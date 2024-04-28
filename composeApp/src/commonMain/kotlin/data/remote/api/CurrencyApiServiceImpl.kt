@@ -1,6 +1,7 @@
 package data.remote.api
 
 import domain.CurrencyApiService
+import domain.PreferencesRepository
 import domain.model.ApiResponse
 import domain.model.Currency
 import domain.model.RequestState
@@ -15,10 +16,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class CurrencyApiServiceImpl : CurrencyApiService {
+class CurrencyApiServiceImpl(
+    private val preferencesRepository: PreferencesRepository
+) : CurrencyApiService {
     companion object {
         const val CURRENCY_EXCHANGE_ENDPOINT = "https://api.currencyapi.com/v3/latest"
-        const val API_KEY = "<YOUR_API_KEY>"
+        const val API_KEY = "cur_live_ELmeQAhWNI3OXxAQJj6Jut7jLgTcv7mZmdbMPMm0"
     }
 
     private val httpClient = HttpClient {
@@ -45,6 +48,10 @@ class CurrencyApiServiceImpl : CurrencyApiService {
             when (val status = response.status) {
                 HttpStatusCode.OK -> {
                     val apiResponse = Json.decodeFromString<ApiResponse>(response.body())
+
+                    val lastUpdated = apiResponse.meta.lastUpdatedAt
+                    preferencesRepository.saveLastUpdated(lastUpdated)
+
                     RequestState.Success(apiResponse.data.values.toList())
                 }
                 else -> RequestState.Error("Network Error: ${status.value} - ${status.description}")
