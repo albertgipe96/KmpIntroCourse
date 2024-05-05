@@ -1,5 +1,6 @@
 package domain.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,6 +11,7 @@ data class ApiResponse(
 
 @Serializable
 data class Metadata(
+    @SerialName("last_updated_at")
     val lastUpdatedAt: String
 )
 
