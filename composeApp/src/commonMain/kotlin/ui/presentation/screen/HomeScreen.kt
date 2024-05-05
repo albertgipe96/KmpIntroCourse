@@ -4,15 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
-import com.russhwolf.settings.Settings
-import data.local.PreferencesRepositoryImpl
-import data.remote.api.CurrencyApiServiceImpl
-import ui.presentation.components.HomeHeader
+import ui.presentation.components.header.HomeHeader
 import ui.theme.surfaceColor
 
 class HomeScreen : Screen {
@@ -20,6 +16,8 @@ class HomeScreen : Screen {
     override fun Content() {
         val viewModel = getScreenModel<HomeViewModel>()
         val rateStatus by viewModel.rateStatus
+        val sourceCurrency by viewModel.sourceCurrency
+        val targetCurrency by viewModel.targetCurrency
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -27,7 +25,10 @@ class HomeScreen : Screen {
         ) {
             HomeHeader(
                 rateStatus = rateStatus,
-                onRefresh = { viewModel.sendEvent(HomeUiEvent.RefreshRates) }
+                sourceCurrency = sourceCurrency,
+                targetCurrency = targetCurrency,
+                onRefresh = { viewModel.sendEvent(HomeUiEvent.RefreshRates) },
+                onSwitchClick = {  }
             )
         }
     }

@@ -7,7 +7,9 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import domain.CurrencyApiService
 import domain.PreferencesRepository
+import domain.model.Currency
 import domain.model.RateStatus
+import domain.model.RequestState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ui.presentation.screen.HomeUiEvent
@@ -23,6 +25,12 @@ class HomeViewModel(
 
     private var _rateStatus = mutableStateOf(RateStatus.Idle)
     val rateStatus: State<RateStatus> = _rateStatus
+
+    private var _sourceCurrency = mutableStateOf(RequestState.Idle)
+    val sourceCurrency: State<RequestState<Currency>> = _sourceCurrency
+
+    private var _targetCurrency = mutableStateOf(RequestState.Idle)
+    val targetCurrency: State<RequestState<Currency>> = _targetCurrency
 
     init {
         screenModelScope.launch {

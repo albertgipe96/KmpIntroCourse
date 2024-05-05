@@ -1,4 +1,4 @@
-package ui.presentation.components
+package ui.presentation.components.header
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import domain.model.Currency
 import domain.model.RateStatus
+import domain.model.RequestState
 import kmpintrocourse.composeapp.generated.resources.Res
 import kmpintrocourse.composeapp.generated.resources.exchange_illustration
 import kmpintrocourse.composeapp.generated.resources.refresh_ic
@@ -35,7 +37,10 @@ import utils.displayCurrentDateTime
 @Composable
 fun HomeHeader(
     rateStatus: RateStatus,
-    onRefresh: () -> Unit
+    sourceCurrency: RequestState<Currency>,
+    targetCurrency: RequestState<Currency>,
+    onRefresh: () -> Unit,
+    onSwitchClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -48,6 +53,12 @@ fun HomeHeader(
         RatesStatusTitle(
             status = rateStatus,
             onRefresh = onRefresh
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        CurrencyInputsRow(
+            sourceCurrency = sourceCurrency,
+            targetCurrency = targetCurrency,
+            onSwitchClick = onSwitchClick
         )
     }
 }
