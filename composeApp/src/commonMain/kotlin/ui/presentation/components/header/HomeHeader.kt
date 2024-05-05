@@ -39,8 +39,10 @@ fun HomeHeader(
     rateStatus: RateStatus,
     sourceCurrency: RequestState<Currency>,
     targetCurrency: RequestState<Currency>,
+    amountValue: Double,
     onRefresh: () -> Unit,
-    onSwitchClick: () -> Unit
+    onSwitchClick: () -> Unit,
+    onAmountValueChange: (Double) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -59,6 +61,12 @@ fun HomeHeader(
             sourceCurrency = sourceCurrency,
             targetCurrency = targetCurrency,
             onSwitchClick = onSwitchClick
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        AmountInput(
+            amountValue = amountValue,
+            onAmountValueChange = onAmountValueChange
+
         )
     }
 }
