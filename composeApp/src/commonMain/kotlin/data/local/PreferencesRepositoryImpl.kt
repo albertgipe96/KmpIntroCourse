@@ -6,6 +6,10 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
 import com.russhwolf.settings.coroutines.toFlowSettings
 import domain.PreferencesRepository
+import domain.model.CurrencyCode
+import domain.model.CurrencyInputType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -16,6 +20,11 @@ class PreferencesRepositoryImpl(private val settings: Settings) : PreferencesRep
 
     companion object {
         const val TIMESTAMP_KEY = "lastUpdated"
+        const val SOURCE_CURRENCY_KEY = "sourceCurrency"
+        const val TARGET_CURRENCY_KEY = "targetCurrency"
+
+        val DEFAULT_SOURCE_CURRENCY = CurrencyCode.USD.name
+        val DEFAULT_TARGET_CURRENCY = CurrencyCode.EUR.name
     }
 
     private val flowSettings: FlowSettings = (settings as ObservableSettings).toFlowSettings()
@@ -42,4 +51,27 @@ class PreferencesRepositoryImpl(private val settings: Settings) : PreferencesRep
             (currentDateTime.date.dayOfYear - savedDateTime.date.dayOfYear) < 1
         } else false
     }
+
+    override suspend fun saveCurrencyCode(code: String, inputType: CurrencyInputType) {
+        val key = when (inputType) {
+            CurrencyInputType.SOURCE -> SOURCE_CURRENCY_KEY
+            CurrencyInputType.TARGET -> TARGET_CURRENCY_KEY
+        }
+        flowSettings.putString(
+            key = key,
+            value = code
+        )
+    }
+
+    override suspend fun readCurrencyCode(inputType: CurrencyInputType): Flow<CurrencyCode> {
+        val (key, default) = when (inputType) {
+            CurrencyInputType.SOURCE -> listOf(SOURCE_CURRENCY_KEY, DEFAULT_SOURCE_CURRENCY)
+            CurrencyInputType.TARGET -> listOf(TARGET_CURRENCY_KEY, DEFAULT_TARGET_CURRENCY)
+        }
+        return flowSettings.getStringFlow(
+            key = key,
+            defaultValue = default
+        ).map { CurrencyCode.valueOf(it) }
+    }
+
 }

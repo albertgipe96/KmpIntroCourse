@@ -9,8 +9,10 @@ import domain.CurrencyApiService
 import domain.MongoDbRepository
 import domain.PreferencesRepository
 import domain.model.Currency
+import domain.model.CurrencyInputType
 import domain.model.RateStatus
 import domain.model.RequestState
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -29,10 +31,10 @@ class HomeViewModel(
     private var _rateStatus = mutableStateOf(RateStatus.Idle)
     val rateStatus: State<RateStatus> = _rateStatus
 
-    private var _sourceCurrency = mutableStateOf(RequestState.Idle)
+    private var _sourceCurrency = mutableStateOf<RequestState<Currency>>(RequestState.Idle)
     val sourceCurrency: State<RequestState<Currency>> = _sourceCurrency
 
-    private var _targetCurrency = mutableStateOf(RequestState.Idle)
+    private var _targetCurrency = mutableStateOf<RequestState<Currency>>(RequestState.Idle)
     val targetCurrency: State<RequestState<Currency>> = _targetCurrency
 
     private var _allCurrencies = mutableListOf<Currency>()
@@ -41,6 +43,8 @@ class HomeViewModel(
     init {
         screenModelScope.launch {
             fetchNewRates()
+            readSourceCurrency()
+            readTargetCurrency()
         }
     }
 
@@ -101,6 +105,28 @@ class HomeViewModel(
         return if (preferencesRepository.isDataFresh(currentTimestamp)) {
             RateStatus.Fresh
         } else RateStatus.Stale
+    }
+
+    private fun readSourceCurrency() {
+        screenModelScope.launch {
+            preferencesRepository.readCurrencyCode(CurrencyInputType.SOURCE).collectLatest { currencyCode ->
+                val selectedCurrency = allCurrencies.find { it.code == currencyCode.name }
+                _sourceCurrency.value = selectedCurrency?.let {
+                    RequestState.Success(data = it)
+                } ?: RequestState.Error(message = "Couldn't find the selected currency")
+            }
+        }
+    }
+
+    private fun readTargetCurrency() {
+        screenModelScope.launch {
+            preferencesRepository.readCurrencyCode(CurrencyInputType.TARGET).collectLatest { currencyCode ->
+                val selectedCurrency = allCurrencies.find { it.code == currencyCode.name }
+                _targetCurrency.value = selectedCurrency?.let {
+                    RequestState.Success(data = it)
+                } ?: RequestState.Error(message = "Couldn't find the selected currency")
+            }
+        }
     }
 
 }
