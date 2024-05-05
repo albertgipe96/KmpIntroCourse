@@ -20,6 +20,7 @@ import ui.presentation.screen.HomeUiEvent
 
 sealed class HomeUiEvent {
     data object RefreshRates : HomeUiEvent()
+    data object SwitchCurrencies : HomeUiEvent()
 }
 
 class HomeViewModel(
@@ -57,6 +58,8 @@ class HomeViewModel(
             HomeUiEvent.RefreshRates -> screenModelScope.launch {
                 fetchNewRates()
             }
+
+            HomeUiEvent.SwitchCurrencies -> switchCurrencies()
         }
     }
 
@@ -127,6 +130,11 @@ class HomeViewModel(
                 } ?: RequestState.Error(message = "Couldn't find the selected currency")
             }
         }
+    }
+
+    private fun switchCurrencies() {
+        _sourceCurrency.value = _targetCurrency.value
+            .also { _targetCurrency.value = _sourceCurrency.value }
     }
 
 }
