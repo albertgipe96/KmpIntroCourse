@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import domain.model.Currency
 import domain.model.CurrencyCode
+import domain.model.DisplayResult
 import domain.model.RequestState
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
@@ -52,22 +53,24 @@ fun RowScope.CurrencyView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (currency.isSuccess()) {
-                val currencyCode = CurrencyCode.valueOf(currency.getSuccessData().code)
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(currencyCode.flag),
-                    contentDescription = null,
-                    tint = Color.Unspecified
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    modifier = Modifier.padding(start = 12.dp),
-                    text = currencyCode.name,
-                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                    color = Color.White
-                )
-            }
+            currency.DisplayResult(
+                onSuccess = { currencyData ->
+                    val currencyCode = CurrencyCode.valueOf(currencyData.code)
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(currencyCode.flag),
+                        contentDescription = null,
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        modifier = Modifier.padding(start = 12.dp),
+                        text = currencyCode.name,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                        color = Color.White
+                    )
+                }
+            )
         }
     }
 }
